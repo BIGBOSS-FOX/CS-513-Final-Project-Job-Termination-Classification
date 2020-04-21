@@ -73,7 +73,7 @@ test <- data[-idx,]
 
 library(kknn)
 
-# k = 3
+## k = 3
 predict_k3 <- kknn(formula = STATUS ~ ANNUAL_RATE + HRLY_RATE + JOBCODE + ETHNICITY + SEX + MARITAL_STATUS + JOB_SATISFACTION + AGE + NUMBER_OF_TEAM_CHANGED + REFERRAL_SOURCE + HIRE_MONTH + REHIRE + IS_FIRST_JOB + TRAVELLED_REQUIRED + PERFORMANCE_RATING + DISABLED_EMP + DISABLED_VET + EDUCATION_LEVEL + JOB_GROUP + PREVYR_1 + PREVYR_2 + PREVYR_3 + PREVYR_4 + PREVYR_5, training, test[,-21], k = 3,kernel ="rectangular")
 summary(predict_k3)
 STATUS_knn_k3 <- fitted(predict_k3)
@@ -89,6 +89,40 @@ View(test_knn_k3)
 knn_k3_wrong <- sum(STATUS_knn_k3 != test$STATUS)
 knn_k3_error_rate <- knn_k3_wrong/length(STATUS_knn_k3)
 knn_k3_error_rate
+
+## k = 5
+predict_k5 <- kknn(formula = STATUS ~ ANNUAL_RATE + HRLY_RATE + JOBCODE + ETHNICITY + SEX + MARITAL_STATUS + JOB_SATISFACTION + AGE + NUMBER_OF_TEAM_CHANGED + REFERRAL_SOURCE + HIRE_MONTH + REHIRE + IS_FIRST_JOB + TRAVELLED_REQUIRED + PERFORMANCE_RATING + DISABLED_EMP + DISABLED_VET + EDUCATION_LEVEL + JOB_GROUP + PREVYR_1 + PREVYR_2 + PREVYR_3 + PREVYR_4 + PREVYR_5, training, test[,-21], k = 5,kernel ="rectangular")
+summary(predict_k5)
+STATUS_knn_k5 <- fitted(predict_k5)
+
+# Confusion table
+table(STATUS = test$STATUS,STATUS_knn_k5 = STATUS_knn_k5)
+
+# Compare the prediction to actual test data
+test_knn_k5 <- cbind(test, STATUS_knn_k5 = STATUS_knn_k5)
+View(test_knn_k5)
+
+# Error rate
+knn_k5_wrong <- sum(STATUS_knn_k5 != test$STATUS)
+knn_k5_error_rate <- knn_k5_wrong/length(STATUS_knn_k5)
+knn_k5_error_rate
+
+## k = 10
+predict_k10 <- kknn(formula = STATUS ~ ANNUAL_RATE + HRLY_RATE + JOBCODE + ETHNICITY + SEX + MARITAL_STATUS + JOB_SATISFACTION + AGE + NUMBER_OF_TEAM_CHANGED + REFERRAL_SOURCE + HIRE_MONTH + REHIRE + IS_FIRST_JOB + TRAVELLED_REQUIRED + PERFORMANCE_RATING + DISABLED_EMP + DISABLED_VET + EDUCATION_LEVEL + JOB_GROUP + PREVYR_1 + PREVYR_2 + PREVYR_3 + PREVYR_4 + PREVYR_5, training, test[,-21], k = 10,kernel ="rectangular")
+summary(predict_k10)
+STATUS_knn_k10 <- fitted(predict_k10)
+
+# Confusion table
+table(STATUS = test$STATUS,STATUS_knn_k10 = STATUS_knn_k10)
+
+# Compare the prediction to actual test data
+test_knn_k10 <- cbind(test, STATUS_knn_k10 = STATUS_knn_k10)
+View(test_knn_k10)
+
+# Error rate
+knn_k10_wrong <- sum(STATUS_knn_k10 != test$STATUS)
+knn_k10_error_rate <- knn_k10_wrong/length(STATUS_knn_k10)
+knn_k10_error_rate
 
 # Replace all NA with "Unknown" in "TERMINATION_YEAR"(这部分麻烦你注释了，待会KNN那段按照你改后的新建列调整)
 # data[is.na(data$TERMINATION_YEAR),"TERMINATION_YEAR"]<-"Unknown"
