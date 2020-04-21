@@ -8,6 +8,8 @@ rm(list=ls())
 csvfile<-file.choose()
 data<-  read.csv(csvfile)
 
+### Data preprocessing ###
+
 # Summary data
 summary(data)
 sum(is.na(data))  #Total 5394 NAs. All in 'TERMINATION_YEAR'
@@ -40,6 +42,17 @@ summary(data$PREVYR_3)
 summary(data$PREVYR_4)
 summary(data$PREVYR_5)
 
+# Histogram for "ANNUAL_RATE"
+hist(data$ANNUAL_RATE, main = "histogram for ANNUAL_RATE")
+
+# Histogram for "HRLY_RATE"
+hist(data$HRLY_RATE, main = "histogram for HRLY_RATE")
+
+# Convert the data type of "JOBCODE" from "numeric" to "factor"
+data$JOBCODE <- as.factor(data$JOBCODE)
+levels(data$JOBCODE)
+summary(data$JOBCODE)
+
 # Replace all "" with "Unknown" in "REFERRAL_SOURCE"
 data$REFERRAL_SOURCE[data$REFERRAL_SOURCE == ""] <- "Unknown"
 summary(data)
@@ -50,20 +63,47 @@ levels(data$REFERRAL_SOURCE)
 data$REFERRAL_SOURCE <- factor(data$REFERRAL_SOURCE)
 levels(data$REFERRAL_SOURCE)
 
-#Replace all NA with "Unknown" in "TERMINATION_YEAR"(这部分麻烦你注释了，待会KNN那段按照你改后的新建列调整)
-data[is.na(data$TERMINATION_YEAR),"TERMINATION_YEAR"]<-"Unknown"
-data$TERMINATION_YEAR <- factor(data$TERMINATION_YEAR)
-summary(data)
-summary(data$TERMINATION_YEAR)
+# Use 30% test 70% training data
+idx <- sort(sample(nrow(data),as.integer(.7*nrow(data))))
+training <- data[idx,]
+test <- data[-idx,]
 
-#KNN For Data
-#A.create training and test data sets 
-index<-sort(sample(nrow( data),round(.30*nrow(data ))))
-training<- data[-index,]
-test<- data[index,]
 
-#B.Use knn with k=1 and classify the test dataset
+### Predict STATUS using knn ###
+
 library(kknn)
-predict_k1<-kknn(formula = TERMINATION_YEAR~.,training[,c(-1)] , test[,c(-1)], k=1,kernel = "rectangular")
-fit <- fitted(predict_k1)
-table(test$TERMINATION_YEAR,fit)
+
+# k = 3
+predict_k3 <- kknn(formula = STATUS ~ ANNUAL_RATE + HRLY_RATE + JOBCODE + ETHNICITY + SEX + MARITAL_STATUS + JOB_SATISFACTION + AGE + NUMBER_OF_TEAM_CHANGED + REFERRAL_SOURCE + HIRE_MONTH + REHIRE + IS_FIRST_JOB + TRAVELLED_REQUIRED + PERFORMANCE_RATING + DISABLED_EMP + DISABLED_VET + EDUCATION_LEVEL + JOB_GROUP + PREVYR_1 + PREVYR_2 + PREVYR_3 + PREVYR_4 + PREVYR_5, training, test[,-21], k = 3,kernel ="rectangular")
+summary(predict_k3)
+STATUS_knn_k3 <- fitted(predict_k3)
+
+# Confusion table
+table(STATUS = test$STATUS,STATUS_knn_k3 = STATUS_knn_k3)
+
+# Compare the prediction to actual test data
+test_knn_k3 <- cbind(test, STATUS_knn_k3 = STATUS_knn_k3)
+View(test_knn_k3)
+
+# Error rate
+knn_k3_wrong <- sum(STATUS_knn_k3 != test$STATUS)
+knn_k3_error_rate <- knn_k3_wrong/length(STATUS_knn_k3)
+knn_k3_error_rate
+
+# Replace all NA with "Unknown" in "TERMINATION_YEAR"(这部分麻烦你注释了，待会KNN那段按照你改后的新建列调整)
+# data[is.na(data$TERMINATION_YEAR),"TERMINATION_YEAR"]<-"Unknown"
+# data$TERMINATION_YEAR <- factor(data$TERMINATION_YEAR)
+# summary(data)
+# summary(data$TERMINATION_YEAR)
+
+# #KNN For Data
+# #A.create training and test data sets 
+# index<-sort(sample(nrow( data),round(.30*nrow(data ))))
+# training<- data[-index,]
+# test<- data[index,]
+
+# B.Use knn with k=1 and classify the test dataset
+# library(kknn)
+# predict_k1<-kknn(formula = TERMINATION_YEAR~.,training[,c(-1)] , test[,c(-1)], k=1,kernel = "rectangular")
+# fit <- fitted(predict_k1)
+# table(test$TERMINATION_YEAR,fit)
