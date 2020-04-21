@@ -69,7 +69,7 @@ training <- data[idx,]
 test <- data[-idx,]
 
 
-### Predict STATUS using knn ###
+### Predict STATUS using KNN ###
 #install.packages("kknn")
 library(kknn)
 
@@ -142,6 +142,29 @@ View(test_NB)
 NB_wrong <- sum(STATUS_NB != test$STATUS)
 NB_error_rate <- NB_wrong/length(STATUS_NB)
 NB_error_rate
+
+### Predict STATUS using CART ###
+#install.packages("rpart")
+#install.packages("rpart.plot")     # Enhanced tree plots
+
+library(rpart)
+library(rpart.plot)  			# Enhanced tree plots
+
+CART <- rpart(STATUS ~ ANNUAL_RATE + HRLY_RATE + JOBCODE + ETHNICITY + SEX + MARITAL_STATUS + JOB_SATISFACTION + AGE + NUMBER_OF_TEAM_CHANGED + REFERRAL_SOURCE + HIRE_MONTH + REHIRE + IS_FIRST_JOB + TRAVELLED_REQUIRED + PERFORMANCE_RATING + DISABLED_EMP + DISABLED_VET + EDUCATION_LEVEL + JOB_GROUP + PREVYR_1 + PREVYR_2 + PREVYR_3 + PREVYR_4 + PREVYR_5, data = training)
+rpart.plot(CART)
+STATUS_CART <- predict(CART, test, type="class")
+
+# Confusion table
+table(STATUS = test$STATUS,STATUS_CART = STATUS_CART)
+
+# Compare the prediction to actual test data
+test_CART <- cbind(test, STATUS_CART = STATUS_CART)
+View(test_CART)
+
+# Error rate
+CART_wrong <- sum(STATUS_CART != test$STATUS)
+CART_error_rate <- CART_wrong/length(STATUS_CART)
+CART_error_rate
 
 # Replace all NA with "Unknown" in "TERMINATION_YEAR"(这部分麻烦你注释了，待会KNN那段按照你改后的新建列调整)
 # data[is.na(data$TERMINATION_YEAR),"TERMINATION_YEAR"]<-"Unknown"
