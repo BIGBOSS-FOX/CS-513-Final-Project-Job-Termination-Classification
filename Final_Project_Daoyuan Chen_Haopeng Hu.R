@@ -70,7 +70,7 @@ test <- data[-idx,]
 
 
 ### Predict STATUS using knn ###
-
+#install.packages("kknn")
 library(kknn)
 
 ## k = 3
@@ -125,7 +125,7 @@ knn_k10_error_rate <- knn_k10_wrong/length(STATUS_knn_k10)
 knn_k10_error_rate
 
 ### Predict STATUS using Naive Bayes ###
-
+#install.packages('e1071', dependencies = TRUE)
 library(e1071)
 
 nBayes <- naiveBayes(STATUS ~ ANNUAL_RATE + HRLY_RATE + JOBCODE + ETHNICITY + SEX + MARITAL_STATUS + JOB_SATISFACTION + AGE + NUMBER_OF_TEAM_CHANGED + REFERRAL_SOURCE + HIRE_MONTH + REHIRE + IS_FIRST_JOB + TRAVELLED_REQUIRED + PERFORMANCE_RATING + DISABLED_EMP + DISABLED_VET + EDUCATION_LEVEL + JOB_GROUP + PREVYR_1 + PREVYR_2 + PREVYR_3 + PREVYR_4 + PREVYR_5, data = training)
