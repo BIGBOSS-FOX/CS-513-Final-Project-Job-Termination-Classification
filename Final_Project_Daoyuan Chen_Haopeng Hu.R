@@ -124,6 +124,25 @@ knn_k10_wrong <- sum(STATUS_knn_k10 != test$STATUS)
 knn_k10_error_rate <- knn_k10_wrong/length(STATUS_knn_k10)
 knn_k10_error_rate
 
+### Predict STATUS using Naive Bayes ###
+
+library(e1071)
+
+nBayes <- naiveBayes(STATUS ~ ANNUAL_RATE + HRLY_RATE + JOBCODE + ETHNICITY + SEX + MARITAL_STATUS + JOB_SATISFACTION + AGE + NUMBER_OF_TEAM_CHANGED + REFERRAL_SOURCE + HIRE_MONTH + REHIRE + IS_FIRST_JOB + TRAVELLED_REQUIRED + PERFORMANCE_RATING + DISABLED_EMP + DISABLED_VET + EDUCATION_LEVEL + JOB_GROUP + PREVYR_1 + PREVYR_2 + PREVYR_3 + PREVYR_4 + PREVYR_5, data = training)
+STATUS_NB <- predict(nBayes, test)
+
+# Confusion table
+table(STATUS = test$STATUS,STATUS_NB = STATUS_NB)
+
+# Compare the prediction to actual test data
+test_NB <- cbind(test, STATUS_NB = STATUS_NB)
+View(test_NB)
+
+# Error rate
+NB_wrong <- sum(STATUS_NB != test$STATUS)
+NB_error_rate <- NB_wrong/length(STATUS_NB)
+NB_error_rate
+
 # Replace all NA with "Unknown" in "TERMINATION_YEAR"(这部分麻烦你注释了，待会KNN那段按照你改后的新建列调整)
 # data[is.na(data$TERMINATION_YEAR),"TERMINATION_YEAR"]<-"Unknown"
 # data$TERMINATION_YEAR <- factor(data$TERMINATION_YEAR)
