@@ -49,3 +49,21 @@ summary(data$REFERRAL_SOURCE)
 levels(data$REFERRAL_SOURCE)
 data$REFERRAL_SOURCE <- factor(data$REFERRAL_SOURCE)
 levels(data$REFERRAL_SOURCE)
+
+#Replace all NA with "Unknown" in "TERMINATION_YEAR"(这部分麻烦你注释了，待会KNN那段按照你改后的新建列调整)
+data[is.na(data$TERMINATION_YEAR),"TERMINATION_YEAR"]<-"Unknown"
+data$TERMINATION_YEAR <- factor(data$TERMINATION_YEAR)
+summary(data)
+summary(data$TERMINATION_YEAR)
+
+#KNN For Data
+#A.create training and test data sets 
+index<-sort(sample(nrow( data),round(.30*nrow(data ))))
+training<- data[-index,]
+test<- data[index,]
+
+#B.Use knn with k=1 and classify the test dataset
+library(kknn)
+predict_k1<-kknn(formula = TERMINATION_YEAR~.,training[,c(-1)] , test[,c(-1)], k=1,kernel = "rectangular")
+fit <- fitted(predict_k1)
+table(test$TERMINATION_YEAR,fit)
