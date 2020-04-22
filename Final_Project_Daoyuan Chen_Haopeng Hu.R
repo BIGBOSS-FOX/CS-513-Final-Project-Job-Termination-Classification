@@ -207,6 +207,27 @@ C50_wrong <- sum(STATUS_C50 != test$STATUS)
 C50_error_rate <- C50_wrong/length(STATUS_C50)
 C50_error_rate
 
+### Predict STATUS using Random Forest ### (randomForest cannot handle categorical predictors with more than 53 categories.)
+#install.packages("randomForest")
+# library(randomForest)
+# 
+# RF_fit <- randomForest(STATUS ~ ANNUAL_RATE + HRLY_RATE + JOBCODE + ETHNICITY + SEX + MARITAL_STATUS + JOB_SATISFACTION + AGE + NUMBER_OF_TEAM_CHANGED + REFERRAL_SOURCE + HIRE_MONTH + REHIRE + IS_FIRST_JOB + TRAVELLED_REQUIRED + PERFORMANCE_RATING + DISABLED_EMP + DISABLED_VET + EDUCATION_LEVEL + JOB_GROUP + PREVYR_1 + PREVYR_2 + PREVYR_3 + PREVYR_4 + PREVYR_5, data=training, importance=TRUE, ntree =1000)
+# importance(RF_fit)
+# varImpPlot(RF_fit)
+# STATUS_RF <- predict(RF_fit,test)
+# 
+# # Confusion table
+# table(STATUS = test$STATUS,STATUS_RF = STATUS_RF)
+# 
+# # Compare the prediction to actual test data
+# test_RF <- cbind(test, STATUS_RF = STATUS_RF)
+# View(test_RF)
+# 
+# # Error rate
+# RF_wrong <- sum(STATUS_RF != test$STATUS)
+# RF_error_rate <- RF_wrong/length(STATUS_RF)
+# RF_error_rate
+
 # Replace all NA with "Unknown" in "TERMINATION_YEAR"(这部分麻烦你注释了，待会KNN那段按照你改后的新建列调整)
 # data[is.na(data$TERMINATION_YEAR),"TERMINATION_YEAR"]<-"Unknown"
 # data$TERMINATION_YEAR <- factor(data$TERMINATION_YEAR)
