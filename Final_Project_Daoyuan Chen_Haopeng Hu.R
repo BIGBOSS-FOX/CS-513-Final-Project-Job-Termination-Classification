@@ -53,6 +53,15 @@ data$JOBCODE <- as.factor(data$JOBCODE)
 levels(data$JOBCODE)
 summary(data$JOBCODE)
 
+# # Replace all "" with a random ethnicity in "ETHNICITY"
+ETHNICITY_random <- sample(c("AMIND", "ASIAN", "BLACK", "HISPA", "PACIF", "TWO", "WHITE"), size = 1)
+ETHNICITY_random
+levels(data$ETHNICITY)
+data$ETHNICITY[data$ETHNICITY == " "] <- ETHNICITY_random
+levels(data$ETHNICITY)
+data$ETHNICITY <- factor(data$ETHNICITY)
+levels(data$ETHNICITY)
+
 # Replace all "" with "Unknown" in "REFERRAL_SOURCE"
 data$REFERRAL_SOURCE[data$REFERRAL_SOURCE == ""] <- "Unknown"
 summary(data)
@@ -63,7 +72,15 @@ levels(data$REFERRAL_SOURCE)
 data$REFERRAL_SOURCE <- factor(data$REFERRAL_SOURCE)
 levels(data$REFERRAL_SOURCE)
 
+# Convert the data type of "REHIRE" from "logical" to "factor" 
+data$REHIRE <- as.factor(data$REHIRE)
+levels(data$REHIRE)
+summary(data$REHIRE)
+
+str(data)
+
 # Use 30% test 70% training data
+set.seed(123)
 idx <- sort(sample(nrow(data),as.integer(.7*nrow(data))))
 training <- data[idx,]
 test <- data[-idx,]
@@ -165,6 +182,30 @@ View(test_CART)
 CART_wrong <- sum(STATUS_CART != test$STATUS)
 CART_error_rate <- CART_wrong/length(STATUS_CART)
 CART_error_rate
+
+### Predict STATUS using C50 ###
+#install.packages("C50")
+library(C50)
+
+# drops <- c("TERMINATION_YEAR")
+# training_C50 <- training[, !names(training) %in% drops]
+
+C50 <- C5.0(STATUS ~ ANNUAL_RATE + HRLY_RATE + JOBCODE + ETHNICITY + SEX + MARITAL_STATUS + JOB_SATISFACTION + AGE + NUMBER_OF_TEAM_CHANGED + REFERRAL_SOURCE + HIRE_MONTH + REHIRE + IS_FIRST_JOB + TRAVELLED_REQUIRED + PERFORMANCE_RATING + DISABLED_EMP + DISABLED_VET + EDUCATION_LEVEL + JOB_GROUP + PREVYR_1 + PREVYR_2 + PREVYR_3 + PREVYR_4 + PREVYR_5, data=training)
+summary(C50)
+# plot(C50)
+STATUS_C50 <- predict(C50, test , type="class" )
+
+# Confusion table
+table(STATUS = test$STATUS,STATUS_C50 = STATUS_C50)
+
+# Compare the prediction to actual test data
+test_C50 <- cbind(test, STATUS_C50 = STATUS_C50)
+View(test_C50)
+
+# Error rate
+C50_wrong <- sum(STATUS_C50 != test$STATUS)
+C50_error_rate <- C50_wrong/length(STATUS_C50)
+C50_error_rate
 
 # Replace all NA with "Unknown" in "TERMINATION_YEAR"(这部分麻烦你注释了，待会KNN那段按照你改后的新建列调整)
 # data[is.na(data$TERMINATION_YEAR),"TERMINATION_YEAR"]<-"Unknown"
