@@ -207,6 +207,49 @@ C50_wrong <- sum(STATUS_C50 != test$STATUS)
 C50_error_rate <- C50_wrong/length(STATUS_C50)
 C50_error_rate
 
+### Predict STATUS using hclust ###
+data_dist<-dist(data[,-c(1,14,21)])
+hclust_results<-hclust(data_dist)
+plot(hclust_results)
+hclust_2<-cutree(hclust_results,2)
+table(hclust_2,data[,21])
+
+### Predict STATUS using k-means ### (error occurred)
+# kmeans_2<- kmeans(data[,-c(1,14,21)],2,nstart = 10)
+# kmeans_2$cluster
+# table(kmeans_2$cluster,data[,21])
+
+### Predict STATUS using k-modes ###
+# install.packages("klaR")
+library(klaR)
+kmodes_2 <- kmodes(data[,-c(1,14,21)], 2, iter.max = 10, weighted = FALSE )
+table(kmodes_2$cluster,data[,21])
+
+### Predict STATUS using kohonen ### (need numerical data)
+# install.packages("kohonen")
+# library("kohonen")
+# som_2<-som(as.matrix(data[,-c(1,14,21)]), grid = somgrid(2,1))
+# table(cluster=som_2$unit.classif,data[,21])
+
+### Predict STATUS using SVM ### (prediction has fewer rows than rows in test data)
+# library(e1071)
+
+# svm.model <- svm(STATUS ~ ANNUAL_RATE + HRLY_RATE + JOBCODE + ETHNICITY + SEX + MARITAL_STATUS + JOB_SATISFACTION + AGE + NUMBER_OF_TEAM_CHANGED + REFERRAL_SOURCE + HIRE_MONTH + REHIRE + IS_FIRST_JOB + TRAVELLED_REQUIRED + PERFORMANCE_RATING + DISABLED_EMP + DISABLED_VET + EDUCATION_LEVEL + JOB_GROUP + PREVYR_1 + PREVYR_2 + PREVYR_3 + PREVYR_4 + PREVYR_5, data = training)
+# svm.pred <- predict(svm.model, test)
+# View(svm.pred)
+# 
+# # Confusion table
+# table(STATUS = test$STATUS,STATUS_svm = svm.pred)
+# 
+# # Compare the prediction to actual test data
+# test_svm <- cbind(test, STATUS_svm = svm.pred)
+# View(test_svm)
+# 
+# # Error rate
+# svm_wrong <- sum(STATUS_svm != test$STATUS)
+# svm_error_rate <- svm_wrong/length(STATUS_svm)
+# svm_error_rate
+
 ### Predict STATUS using Random Forest ### (randomForest cannot handle categorical predictors with more than 53 categories.)
 #install.packages("randomForest")
 # library(randomForest)
@@ -228,20 +271,20 @@ C50_error_rate
 # RF_error_rate <- RF_wrong/length(STATUS_RF)
 # RF_error_rate
 
-### Predict STATUS using ANN ###
+### Predict STATUS using ANN ### (ANN needs all numerical data)
 #install.packages("neuralnet")
-library(neuralnet)
-
-m <- model.matrix(~ STATUS + ANNUAL_RATE + HRLY_RATE + JOBCODE + ETHNICITY + SEX + MARITAL_STATUS + JOB_SATISFACTION + AGE + NUMBER_OF_TEAM_CHANGED + REFERRAL_SOURCE + HIRE_MONTH + REHIRE + IS_FIRST_JOB + TRAVELLED_REQUIRED + PERFORMANCE_RATING + DISABLED_EMP + DISABLED_VET + EDUCATION_LEVEL + JOB_GROUP + PREVYR_1 + PREVYR_2 + PREVYR_3 + PREVYR_4 + PREVYR_5, data = training)
-head(m)
+# library(neuralnet)
+# 
+# m <- model.matrix(~ STATUS + ANNUAL_RATE + HRLY_RATE + JOBCODE + ETHNICITY + SEX + MARITAL_STATUS + JOB_SATISFACTION + AGE + NUMBER_OF_TEAM_CHANGED + REFERRAL_SOURCE + HIRE_MONTH + REHIRE + IS_FIRST_JOB + TRAVELLED_REQUIRED + PERFORMANCE_RATING + DISABLED_EMP + DISABLED_VET + EDUCATION_LEVEL + JOB_GROUP + PREVYR_1 + PREVYR_2 + PREVYR_3 + PREVYR_4 + PREVYR_5, data = training)
+# head(m)
 # m_ETHNICITY <- model.matrix(~ ETHNICITY, data = training)
 # data_nn <- data.frame(data_nn, m_ETHNICITY)
 
 
-nn <- neuralnet(STATUST ~ ., data = m, hidden = 5, linear.output = FALSE)
-print(nn)
-plot(nn)
-nn_predict <- predict(nn, test)
+# nn <- neuralnet(STATUST ~ ., data = m, hidden = 5, linear.output = FALSE)
+# print(nn)
+# plot(nn)
+# nn_predict <- predict(nn, test)
 
 # Replace all NA with "Unknown" in "TERMINATION_YEAR"(这部分麻烦你注释了，待会KNN那段按照你改后的新建列调整)
 # data[is.na(data$TERMINATION_YEAR),"TERMINATION_YEAR"]<-"Unknown"
